@@ -178,7 +178,7 @@ def prettierMatchup(matchup):
 #Given matchup is an ordered list of players.
 #If the list has an odd len, the last element will not play anyone
 def printMatchup(matchup):
-    if len(matchup) < 2:
+    if len(matchup) < 1:
         print("No matchups are possible.")
     else:
         for pair in matchup:
