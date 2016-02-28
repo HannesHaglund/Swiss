@@ -27,56 +27,87 @@ nonp = Player("Nobody")
 def nonePlayer():
     return nonp
 
-#Increments wins/losses and updates faced-list, and/or creates new players if given
-#  winners/losers don't exist in lst
+#Increments wins/losses and updates faced-list.
 def addWin(lst, winner, loser):
-    if winner == loser:
-        lst.append(Player(winner))
-    else:
-        winnerExists = False
-        loserExists = False
+    if winner != loser:
         for player in lst:
-            if winnerExists and loserExists:
-                break
             if player.name == winner:
                 if not player is nonePlayer():
                     player.wins += 1
                 player.faced.append(loser)
-                winnerExists = True
             elif player.name == loser:
                 player.faced.append(winner)
-                loserExists = True
-        if not winnerExists:
-            lst.append(Player(winner))
-            lst[-1].wins = 1
-            lst[-1].faced.append(loser)
-        if not loserExists:
-            lst.append(Player(loser))
-            lst[-1].faced.append(winner)
         
 
-#Reads player elements into a list
-def readPlayers():
+#Compares the argument count in inputSplitted to argc.
+#inputSplitted must not be [], and is a list.
+#If they are equal, return True
+#If they are not, print an error message and return False
+def correctArgumentCount(inputSplitted, argc):
+    if (len(inputSplitted)-1 != argc):
+        print("Syntax error: ", inputSplitted[0], " expected", argc, "arguments. Got", len(inputSplitted)-1, ".")
+        return False
+    else:
+        return True
+
+#Return True if a player with name exists in lst, otherwise False
+def playernameExistsInList(lst, name):
+    return name in [p.name for p in lst]
+
+#Reads input and returns a list of players, properly initialized
+def readInput():
     result = [nonePlayer()]
+    error = True
     while True:
         inp = input()
-        if inp == "end":
-            break
-        elif inp != "" and inp[0] != "#":
+        if inp != "" and inp[0] != "#":
             inp_s = inp.split()
-            name = inp_s[0]
-            if len(inp_s) == 1:
-                addWin(result, name, name) #Add new player
-            else:
-                opponent = inp_s[1]
-                addWin(result, name, opponent)
-    #Remove non-player if even number of players
-    if len(result) % 2 != 0:
-        for i,e in enumerate(result):
-            if e is nonePlayer():
-                del result[i]
+            command = inp_s[0].lower()
+
+            if command == "end":
+                if not correctArgumentCount(inp_s, 0):
+                    break
+                error = False
                 break
-    return result
+
+            elif command == "addplayer":
+                if not correctArgumentCount(inp_s, 1):
+                    break
+                if playernameExistsInList(result, inp_s[1]):
+                    print("Error: Duplicate player name when adding", inp_s[1], ".")
+                    break
+                result.append(Player(inp_s[1]))
+
+            elif command == "result":
+                if not correctArgumentCount(inp_s, 2):
+                    break
+                if inp_s[1] == inp_s[2]:
+                    print("Error: Duplicate arguments to 'result'.", inp_s[1], "and", inp_s[2], "was given.")
+                    break
+                if not playernameExistsInList(result, inp_s[1]):
+                    print("Error: ", inp_s[1], " does not exist.")
+                    break
+                if not playernameExistsInList(result, inp_s[2]):
+                    print("Error: ", inp_s[1], " does not exist.")
+                    break
+                addWin(result, inp_s[1], inp_s[2])
+
+            else:
+                print("Error: unknown command '", command, "'.")
+                break
+
+    if error:
+        print("Error while reading input. Returning empty player list.")
+        return []
+    else:
+        #Remove non-player if even number of players
+        if len(result) % 2 != 0:
+            for i,e in enumerate(result):
+                if e is nonePlayer():
+                    del result[i]
+                    break
+        return result
+
 
 #Sorts a list of player elements properly, by wins
 def sortedByWins(lst):
@@ -185,7 +216,7 @@ def printMatchup(matchup):
             print(pair[0].name, "VS.", pair[1].name)
         
 def main():
-    players = sortedByWins(sortedByNames(readPlayers()))
+    players = sortedByWins(sortedByNames(readInput()))
     startTime = time.time()
     print("")
     print("------------LEADERBOARD------------------")

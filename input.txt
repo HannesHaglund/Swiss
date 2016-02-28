@@ -1,13 +1,19 @@
 
-#Each command takes one row
-#Declare a player via [name]
-#Do not declare multiple players with the same name. There are no checks for this.
-#Write results of a game via [name of winner] [name of loser]
-#Comments can be written after #, row must not contain a command
-#"end" denotes the end of input. Calculations will be made.
+#Lines starting with # are comments
 
-#"Nobody" is a reserved player in matchups with an odd number of players. 
-#This player can't gain wins, but can be played.
-#Never declare Nobody; it will generate a non-Nobody player with Nobody's name
+#A command is written in the form of:
+#  [command name] [arg0] [arg1] [arg2] ...
+#Each command ends with newline
+
+#The following commands are available:
+#  addplayer [name]
+#    Adds a new player with the given name.
+#    All added names must be unique.
+#  result [name of winner] [name of loser]
+#    Registers that the two player have played each other, and
+#    increments the wins of the winner.
+#    Players must exist, and may not be the same player.
+#  end
+#    Denotes end of input. Calculations will be made.
 
 end
