@@ -193,7 +193,9 @@ def matchups(seq, partResult):
 
 #Generates all possible matchups based on players in lst
 def getAllPossibleMatchups(lst):
-    if len(lst) % 2 == 0:
+    if len(lst) == 0:
+        return [[]] #Empty lists into matchups yields an extra [], we don't want that
+    elif len(lst) % 2 == 0:
         return [[]] + list(matchups(lst, []))
     else:
         return [[]] + list(matchups(lst + [nonePlayer()], []))
