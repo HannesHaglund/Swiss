@@ -57,12 +57,13 @@ def playernameExistsInList(lst, name):
 #Reads input and returns a list of players, properly initialized
 def readInput():
     result = [nonePlayer()]
+    deleted = []
     error = True
     while True:
-        inp = input()
+        inp = input().lower()
         if inp != "" and inp[0] != "#":
             inp_s = inp.split()
-            command = inp_s[0].lower()
+            command = inp_s[0]
 
             if command == "end":
                 if not correctArgumentCount(inp_s, 0):
@@ -76,7 +77,28 @@ def readInput():
                 if playernameExistsInList(result, inp_s[1]):
                     print("Error: Duplicate player name when adding", inp_s[1], ".")
                     break
-                result.append(Player(inp_s[1]))
+                #If the player was deleted before and we wanna return him
+                if playernameExistsInList(deleted, inp_s[1]):
+                    for i,p in enumerate(deleted):
+                        if p.name == inp_s[1]:
+                            result.append(p)
+                            del deleted[i]
+                            break
+                else:
+                    result.append(Player(inp_s[1]))
+
+            elif command == "delplayer":
+                if not correctArgumentCount(inp_s, 1):
+                    break
+                if not playernameExistsInList(result, inp_s[1]):
+                    print("Error: Missing player when removing", inp_s[1], "from the tournament.")
+                    break
+                for i,p in enumerate(result):
+                    if p.name == inp_s[1]:
+                        deleted.append(p)
+                        del result[i]
+                        break
+                        
 
             elif command == "result":
                 if not correctArgumentCount(inp_s, 2):
@@ -207,7 +229,6 @@ def prettierMatchup(matchup):
     return sorted(result, key=lambda e: e[0].wins, reverse=True)
 
 #Given matchup is an ordered list of players.
-#If the list has an odd len, the last element will not play anyone
 def printMatchup(matchup):
     if len(matchup) < 1:
         print("No matchups are possible.")
@@ -223,8 +244,6 @@ def main():
     leaderboard(players)
     print("")
     print("------------UPCOMING GAMES---------------")
-    random.shuffle(players)
-    players = sortedByWins(players)
     possible = getAllPossibleMatchups(players)
     matchup, badness = getOptimalMatchup(possible) 
     printMatchup(prettierMatchup(matchup))
