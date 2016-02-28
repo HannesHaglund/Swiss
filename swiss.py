@@ -57,7 +57,7 @@ def playernameExistsInList(lst, name):
 #Reads input and returns a list of players, properly initialized
 def readInput():
     result = [nonePlayer()]
-    deleted = []
+    deleted = [] #Players deleted via delplayer goes here
     error = True
     while True:
         inp = input().lower()
@@ -122,7 +122,7 @@ def readInput():
         print("Error while reading input. Returning empty player list.")
         return []
     else:
-        #Remove non-player if even number of players
+        #Remove non-player if it gives up an even number of player
         if len(result) % 2 != 0:
             for i,e in enumerate(result):
                 if e is nonePlayer():
