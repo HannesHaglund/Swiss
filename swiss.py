@@ -198,9 +198,6 @@ def getAllPossibleMatchups(lst):
     else:
         return [[]] + list(matchups(lst + [nonePlayer()], []))
 
-def xor(a,b):
-    return (a and not b) or (not a and b)
-
 #Calculate an integer indicating how undesirable this matchup is. The higher the worse.
 def badnessOfMatchup(matchup):
     if len(matchup) < 1:
@@ -236,7 +233,7 @@ def prettierMatchup(matchup):
             result.append((second, first))
     return sorted(result, key=lambda e: e[0].wins, reverse=True)
 
-#Given matchup is an ordered list of players.
+#Given matchup is a list of length-2-tuples of players. Each tuple is a pairing.
 def printMatchup(matchup):
     if len(matchup) < 1:
         print("No matchups are possible.")
