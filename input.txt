@@ -3,16 +3,11 @@
 #Declare a player via [name]
 #Do not declare multiple players with the same name. There are no checks for this.
 #Write results of a game via [name of winner] [name of loser]
-#Write > [name] to suspend a player. They will no longer be matched for games
-#Write < [name] to unsusped a player
 #Comments can be written after #, row must not contain a command
 #"end" denotes the end of input. Calculations will be made.
 
 #"Nobody" is a reserved player in matchups with an odd number of players. 
 #This player can't gain wins, but can be played.
 #Never declare Nobody; it will generate a non-Nobody player with Nobody's name
-#By winning/losing vs Nobody, players will not be singled out again
-#You can technically suspend Nobody, but please don't
-
 
 end

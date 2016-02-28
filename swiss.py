@@ -5,7 +5,6 @@ class Player:
     wins = 0
     name = ""
     faced = []
-    suspended = False
 
     def __init__(self, name):
         self.faced = []
@@ -18,14 +17,14 @@ class Player:
         return False
 
     def toString(self):
-        return "| wins=" + str(self.wins) + " name=" + self.name + " faced=" + str(self.faced) + "susp=" + str(self.suspended) + " |"
+        return "| wins=" + str(self.wins) + " name=" + self.name + " faced=" + str(self.faced) + " |"
 
 #A very specific player used to match up players in odd-participant rounds
 #Can't gain wins, is called "Nobody"
 #Don't create another player with this name
 nonp = Player("Nobody")
 #Returns the nonplayer
-def nonePlayer():3
+def nonePlayer():
     return nonp
 
 #Increments wins/losses and updates faced-list, and/or creates new players if given
@@ -68,13 +67,6 @@ def readPlayers():
             name = inp_s[0]
             if len(inp_s) == 1:
                 addWin(result, name, name) #Add new player
-            elif inp_s[0][0] == '>' or inp_s[0][0] == '<': #Suspend, unsuspend
-                target = inp_s[1]
-                if not target in [e.name for e in result]: #If not exists
-                    addWin(result, target, target) #Add player
-                for e in result:
-                    if e.name == target:
-                        e.suspended = inp_s[0][0] == '>' #Suspend if >, unsuspend if <
             else:
                 opponent = inp_s[1]
                 addWin(result, name, opponent)
@@ -94,7 +86,7 @@ def sortedByWins(lst):
 def sortedByNames(lst):
     return sorted(lst, key=lambda e: e.name)
 
-#Converts a pos int to str
+#Converts a pos int to str, ending with a st. nd, rd, or th
 def posToString(pos):
     if pos == 1:
         return "1st"
@@ -154,15 +146,8 @@ def badnessOfMatchup(matchup):
         return float("inf")
     result = 0
     for pair in matchup:
-        if pair[0].suspended or pair[1].suspended:
-            if xor(pair[0].suspended, pair[1].suspended):
-                if not (pair[0] is nonePlayer() or pair[1] is nonePlayer()): #Being suspended vs nonePlayer is OK
-                    v1 = pair[0].wins
-                    v2 = pair[1].wins
-                    result += 1 + v1*v1 + v2*v2
-        else:
-            value = pair[0].wins - pair[1].wins
-            result += value*value
+        value = pair[0].wins - pair[1].wins
+        result += value*value
     return result
 
 #Calculates the optimal matchup out of the given ones
@@ -188,34 +173,16 @@ def prettierMatchup(matchup):
             result.append((first, second))
         else:
             result.append((second, first))
-    def sortval(e):
-        if e[0].suspended or e[1].suspended or e[0] is nonePlayer() or e[1] is nonePlayer():
-            return -1
-        else:
-            return e[0].wins
     return sorted(result, key=lambda e: e[0].wins, reverse=True)
 
-#Given matchup is an ordered list of players. Every two players will face each other, unless one is suspended.
+#Given matchup is an ordered list of players.
 #If the list has an odd len, the last element will not play anyone
 def printMatchup(matchup):
     if len(matchup) < 2:
         print("No matchups are possible.")
-        return
-    latePrints = []
-    for pair in matchup:
-        if pair[0].suspended and pair[1].suspended:
-            latePrints.append(pair[0].name + " is suspended.")
-            latePrints.append(pair[1].name + " is suspended.")
-        elif pair[0].suspended:
-            latePrints.append(pair[0].name + " is suspended.")
-            latePrints.append(pair[1].name + " is unable to play due to enemy suspension.")
-        elif pair[1].suspended:
-            latePrints.append(pair[1].name + " is suspended.")
-            latePrints.append(pair[0].name + " is unable to play due to enemy suspension.")
-        else:
+    else:
+        for pair in matchup:
             print(pair[0].name, "VS.", pair[1].name)
-    for msg in latePrints:
-        print(msg)
         
 def main():
     players = sortedByWins(sortedByNames(readPlayers()))
