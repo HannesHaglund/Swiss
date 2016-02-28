@@ -54,7 +54,11 @@ def correctArgumentCount(inputSplitted, argc):
 def playernameExistsInList(lst, name):
     return name in [p.name for p in lst]
 
-#Reads input and returns a list of players, properly initialized
+#Reads input, and returns it in a usable format
+#Returns a tuple containing:
+#  A list of non-deleted players
+#  And a list of deleted players
+#All players are properly initialized.
 def readInput():
     result = [nonePlayer()]
     deleted = [] #Players deleted via delplayer goes here
@@ -120,7 +124,7 @@ def readInput():
 
     if error:
         print("Error while reading input. Returning empty player list.")
-        return []
+        return [], []
     else:
         #Remove non-player if it gives up an even number of player
         if len(result) % 2 != 0:
@@ -128,16 +132,8 @@ def readInput():
                 if e is nonePlayer():
                     del result[i]
                     break
-        return result
+        return result, deleted
 
-
-#Sorts a list of player elements properly, by wins
-def sortedByWins(lst):
-    return sorted(lst, key=lambda e: e.wins, reverse=True)
-
-#Sorts a list of player elements properly, by names
-def sortedByNames(lst):
-    return sorted(lst, key=lambda e: e.name)
 
 #Converts a pos int to str, ending with a st. nd, rd, or th
 def posToString(pos):
@@ -157,16 +153,28 @@ def suffix(count, word):
     else:
         return word + "s"
 
+#Sorts a list of player elements properly, by wins
+def sortedByWins(lst):
+    return sorted(lst, key=lambda e: e.wins, reverse=True)
+
+#Sorts a list of player elements properly, by names
+def sortedByNames(lst):
+    return sorted(lst, key=lambda e: e.name)
+
 #Assumes lst have player elements and is sorted
 #Prints a leaderboard
-def leaderboard(lst):
+def leaderboard(players, deletedPlayers):
+    sortedLst = sortedByWins(sortedByNames(players)) + sortedByWins(sortedByNames(deletedPlayers))
     pos = 1
     lastE = None
-    for e in lst:
+    for e in sortedLst:
         if lastE is not None and e.wins != lastE.wins: 
             pos += 1
         if not nonePlayer() is e:
-            print(posToString(pos), ". ", e.name, "\t\t(", e.wins, suffix(e.wins, " win"), ")" )
+            if e in players:
+                print(posToString(pos), ". ", e.name, "\t\t(", e.wins, suffix(e.wins, " win"), ")" )
+            elif e in deletedPlayers:
+                print(posToString(pos), ". ", e.name, "\t\t(", e.wins, suffix(e.wins, " win"), ", deleted)" )
         lastE = e
 
 #Generates all non-empty possible matchups. 
@@ -237,11 +245,11 @@ def printMatchup(matchup):
             print(pair[0].name, "VS.", pair[1].name)
         
 def main():
-    players = sortedByWins(sortedByNames(readInput()))
+    players, deletedPlayers = readInput()
     startTime = time.time()
     print("")
     print("------------LEADERBOARD------------------")
-    leaderboard(players)
+    leaderboard(players, deletedPlayers)
     print("")
     print("------------UPCOMING GAMES---------------")
     possible = getAllPossibleMatchups(players)

@@ -14,7 +14,7 @@
 #    The player must exist.
 #    If a previously deleted player is added again, he will keep wins
 #     and previous matchup data from before deletion.
-#    Useful if a player leaves the tournament.
+#    Useful if a player leaves the tournament, or wishes to skip a round.
 #  result [name of winner] [name of loser]
 #    Registers that the two player have played each other, and
 #     increments the wins of the winner.
@@ -23,6 +23,5 @@
 #    Denotes end of input. Calculations will be made.
 
 # ============ YOUR CODE HERE =============================== #
-
 
 end
