@@ -8,7 +8,7 @@ class Player:
 
     def __init__(self, name):
         self.faced = []
-        self.name = name
+        self.name = name[0].upper() + name[1:].lower()
 
     def hasFaced(self, other):
         for name in self.faced:
@@ -161,9 +161,24 @@ def sortedByWins(lst):
 def sortedByNames(lst):
     return sorted(lst, key=lambda e: e.name)
 
+#Expands the string with spaces or cuts it to be of length nLen
+#If fattenAfter is True, it appends spaces to the right. If not, to the left
+def fattenedString(string, nLen, fattenAfter=True):
+    if len(string) > nLen:
+        return string[:nLen]
+    else:
+        result = string
+        while len(result) < nLen:
+            if fattenAfter:
+                result += " "
+            else:
+                result = " " + result
+        return result
+
 #Assumes lst have player elements and is sorted
 #Prints a leaderboard
 def leaderboard(players, deletedPlayers):
+    STRING_LEN = 16
     sortedLst = sortedByWins(sortedByNames(players)) + sortedByWins(sortedByNames(deletedPlayers))
     pos = 1
     lastE = None
@@ -171,10 +186,12 @@ def leaderboard(players, deletedPlayers):
         if lastE is not None and e.wins != lastE.wins: 
             pos += 1
         if not nonePlayer() is e:
+            posAndName = fattenedString(posToString(pos)+". "+e.name, STRING_LEN)
+            rowWithoutEnd = posAndName + "\t( " + str(e.wins) +  suffix(e.wins, " win")
             if e in players:
-                print(posToString(pos), ". ", e.name, "\t\t(", e.wins, suffix(e.wins, " win"), ")" )
+                print(rowWithoutEnd, ")" )
             elif e in deletedPlayers:
-                print(posToString(pos), ". ", e.name, "\t\t(", e.wins, suffix(e.wins, " win"), ", deleted)" )
+                print(rowWithoutEnd, ", deleted)" )
         lastE = e
 
 #Generates all non-empty possible matchups. 
@@ -237,11 +254,13 @@ def prettierMatchup(matchup):
 
 #Given matchup is a list of length-2-tuples of players. Each tuple is a pairing.
 def printMatchup(matchup):
+    NAME_LENGTH = 16
     if len(matchup) < 1:
         print("No matchups are possible.")
     else:
         for pair in matchup:
-            print(pair[0].name, "VS.", pair[1].name)
+            #Fattening last word is unnecessary
+            print(fattenedString(pair[0].name, NAME_LENGTH, False), " VS. ", pair[1].name )
         
 def main():
     players, deletedPlayers = readInput()
