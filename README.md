@@ -35,7 +35,7 @@ Adds 1 to the wins of the given player.
 ```
 decwins [name of player]
 ```
-Subtracts 1 to the wins of the given player.
+Subtracts 1 from the wins of the given player.
 ```
 end
 ```
