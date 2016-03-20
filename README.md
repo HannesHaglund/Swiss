@@ -29,6 +29,14 @@ result [name of winner] [name of loser]
 ```
 Registers that the two player have played each other, and increments the wins of the winner. Players must exist, and may not be the same player.
 ```
+incwins [name of player]
+```
+Adds 1 to the wins of the given player.
+```
+decwins [name of player]
+```
+Subtracts 1 to the wins of the given player.
+```
 end
 ```
   Denotes end of input. Calculations will be made.

@@ -111,13 +111,25 @@ def readInput():
                     print("Error: Duplicate arguments to 'result'.", inp_s[1], "and", inp_s[2], "was given.")
                     break
                 if not playernameExistsInList(result, inp_s[1]):
-                    print("Error: ", inp_s[1], " does not exist.")
+                    print("Error: ", inp_s[1], " does not exist when calling 'result'.")
                     break
                 if not playernameExistsInList(result, inp_s[2]):
-                    print("Error: ", inp_s[1], " does not exist.")
+                    print("Error: ", inp_s[1], " does not exist when calling 'result'.")
                     break
                 addWin(result, inp_s[1], inp_s[2])
 
+            elif command == "incwins" or command == "decwins":
+                dif = 1 if command == "incwins" else -1
+                if not correctArgumentCount(inp_s, 1):
+                    break
+                if not playernameExistsInList(result, inp_s[1]):
+                    print("Error: Missing player when calling'", command, "'.")
+                    break
+                for i,p in enumerate(result):
+                    if p.name.lower() == inp_s[1]:
+                        p.wins += dif
+                        break
+                    
             else:
                 print("Error: unknown command '", command, "'.")
                 break
