@@ -7,11 +7,4 @@
 
 # ============ YOUR CODE HERE =============================== #
 
-addplayer Mattias
-addplayer Hannes
-addplayer Carl
-addplayer Daniel
-addplayer Simon
-addplayer Kristian
-
 end
