@@ -12,7 +12,7 @@ class Player:
 
     def hasFaced(self, other):
         for name in self.faced:
-            if name == other.name:
+            if name.lower() == other.name.lower():
                 return True
         return False
 
@@ -29,13 +29,13 @@ def nonePlayer():
 
 #Increments wins/losses and updates faced-list.
 def addWin(lst, winner, loser):
-    if winner != loser:
+    if winner.lower() != loser.lower():
         for player in lst:
-            if player.name == winner:
+            if player.name.lower() == winner.lower():
                 if not player is nonePlayer():
                     player.wins += 1
                 player.faced.append(loser)
-            elif player.name == loser:
+            elif player.name.lower() == loser.lower():
                 player.faced.append(winner)
         
 
@@ -52,7 +52,7 @@ def correctArgumentCount(inputSplitted, argc):
 
 #Return True if a player with name exists in lst, otherwise False
 def playernameExistsInList(lst, name):
-    return name in [p.name for p in lst]
+    return name.lower() in [p.name.lower() for p in lst]
 
 #Reads input, and returns it in a usable format
 #Returns a tuple containing:
@@ -84,7 +84,7 @@ def readInput():
                 #If the player was deleted before and we wanna return him
                 if playernameExistsInList(deleted, inp_s[1]):
                     for i,p in enumerate(deleted):
-                        if p.name == inp_s[1]:
+                        if p.name.lower() == inp_s[1]:
                             result.append(p)
                             del deleted[i]
                             break
@@ -98,7 +98,7 @@ def readInput():
                     print("Error: Missing player when removing", inp_s[1], "from the tournament.")
                     break
                 for i,p in enumerate(result):
-                    if p.name == inp_s[1]:
+                    if p.name.lower() == inp_s[1]:
                         deleted.append(p)
                         del result[i]
                         break
