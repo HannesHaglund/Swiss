@@ -6,7 +6,7 @@ Prerequisites: python3.
 
 To run, do `python3 swiss.py` in terminal, then input player data, matchups, et.c.
 
-To run with input.txt as input, simply pipe it: `cat input.txt | python3 swiss.py`.
+To run with a file as input, simply pipe it: `cat [file name] | python3 swiss.py`.
 
 ## Input syntax
 Lines starting with # are comments
