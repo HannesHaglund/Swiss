@@ -57,6 +57,11 @@ class Matchup:
         self.cost = cost
 
 
+class Matchups:
+    pairs = []
+    bye_player = None
+
+
 class Tournament:
     _match_log = []
 
@@ -122,7 +127,8 @@ class Tournament:
 
 
     def round_matchups(self):
-        mate = nx.max_weight_matching(self._matchup_graph(), \
+        bye = self._bye_player()
+        mate = nx.max_weight_matching(self._matchup_graph(bye), \
                                       maxcardinality=True)
 
         # Extract data
@@ -140,19 +146,24 @@ class Tournament:
                 pairs[i] = (pair[1], pair[0])
 
         # Format as matchups
-        matchups = []
+        matchups = Matchups()
         for e in pairs:
-            matchups.append(Matchup(e[0], e[1], \
-                                    self._matchup_cost(e[0], e[1])))
+            cost = self._matchup_cost(e[0], e[1])
+            matchups.pairs.append(Matchup(e[0], e[1], cost))
+        matchups.bye_player = bye
+
         return matchups
 
 
     def print_round_matchups(self):
         matchups = self.round_matchups()
-        for matchup in matchups:
+        for matchup in matchups.pairs:
             print(matchup.player_a.name() \
                   + " VS. " \
                   + matchup.player_b.name())
+        if matchups.bye_player is not None:
+            print(matchups.bye_player.name(), \
+                  "gets a bye.")
 
 
     def _rank_score_pairs(self):
@@ -221,10 +232,9 @@ class Tournament:
             + abs(match_wins[player_a] - match_wins[player_b])
 
 
-    def _matchup_graph(self):
+    def _matchup_graph(self, bye_player):
         players = list(self.players())
         graph = nx.Graph()
-        bye_player = self._bye_player()
         for p in players:
             graph.add_node(p)
         for i, pa in enumerate(players):
