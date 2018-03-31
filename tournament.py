@@ -1,6 +1,5 @@
 import networkx as nx
 import random
-import operator
 from player import Player
 from match_log import MatchLog
 
@@ -34,6 +33,7 @@ class Tournament:
         self._update_players([player_a, player_b])
         self._match_log.add_result(player_a, player_b, wins_a, wins_b)
 
+
     def add_bye(self, player):
         self._update_players([player])
         self._match_log.add_bye(player)
@@ -64,9 +64,10 @@ class Tournament:
                 pairs.append((k, v))
 
         # Sort pairs by wins
-        wins = self._match_log.players_match_wins()
         for i, pair in enumerate(pairs):
-            if wins[pair[0]] < wins[pair[1]]:
+            wins_zero = self._match_log.times_match_win(pair[0])
+            wins_one = self._match_log.times_match_win(pair[1])
+            if wins_zero < wins_one:
                 pairs[i] = (pair[1], pair[0])
 
         # Format as matchups
@@ -82,12 +83,10 @@ class Tournament:
     def print_round_matchups(self):
         matchups = self.round_matchups()
         for matchup in matchups.pairs:
-            print(matchup.player_a.name() \
-                  + " VS. " \
-                  + matchup.player_b.name())
+            print(matchup.player_a.name(), "VS.", \
+                  matchup.player_b.name())
         if matchups.bye_player is not None:
-            print(matchups.bye_player.name(), \
-                  "gets a bye.")
+            print(matchups.bye_player.name(), "gets a bye.")
 
 
     def _player_name_player(self, player_name):

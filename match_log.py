@@ -1,5 +1,6 @@
 import networkx as nx
 import random
+import operator
 
 
 class MatchResult:
@@ -82,26 +83,34 @@ class MatchLog:
         return rslt
 
 
-    def players_match_wins(self):
-        rslt = {p: 0 for p in self.players()}
+    def times_match_win(self, player):
+        rslt = 0
         for entry in self._entries:
             winner = entry.winner()
-            if winner is not None:
-                rslt[winner] += 1
+            if winner == player:
+                rslt += 1
         return rslt
 
 
-    def ranking(self):
-        pairs_by_win = self._rank_score_pairs()
-        ranked_players = [e[0] for e in pairs_by_win]
-        return ranked_players
+    def rank_score_pairs(self, unlogged_players=[]):
+        active_unlogged = [p for p in unlogged_players \
+                           if p.is_active()]
+        players = self.active_players() + active_unlogged
+        score_player_pairs = [(self.times_match_win(p), p) \
+                              for p in players]
+        pairs_by_name = sorted(score_player_pairs, \
+                               key=lambda e: e[0].name())
+        pairs_by_win = sorted(match_wins.items(), \
+                              key=operator.itemgetter(1))
+        pairs_by_win.reverse() # Best to worst
+        return [e for e in pairs_by_win if e[0].is_active()]
 
 
     def best_bye_candidate(self):
         if len(self.active_players()) % 2 == 0:
             return None
         players = self.players()
-        ranking = self._rank_score_pairs() # Contains active only
+        ranking = self.rank_score_pairs() # Contains active only
         lowest_score = min([e[1] for e in ranking])
         lowest_scoring_players = [player \
                                   for (player, score) in ranking \
@@ -130,20 +139,12 @@ class MatchLog:
 
 
     def matchup_cost(self, player_a, player_b):
-        match_wins = self.players_match_wins()
+        a_wins = self.times_match_win(player_a)
+        b_wins = self.times_match_win(player_b)
+        wins_diff = abs(a_wins - b_wins)
+        times_played = self.times_matched(player_a, player_b)
         PREV_MATCH_COST = 10000
-        return PREV_MATCH_COST * self.times_matched(player_a, player_b) \
-            + abs(match_wins[player_a] - match_wins[player_b])
-
-
-    def _rank_score_pairs(self):
-        match_wins = self.players_match_wins()
-        pairs_by_name = sorted(match_wins.items(), \
-                               key=lambda e: e[0].name())
-        pairs_by_win = sorted(match_wins.items(), \
-                              key=operator.itemgetter(1))
-        pairs_by_win.reverse() # Best to worst
-        return [e for e in pairs_by_win if e[0].is_active()]
+        return PREV_MATCH_COST * times_played + wins_diff
 
 
     def _min_active_bye_count(self):
