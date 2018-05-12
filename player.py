@@ -1,7 +1,7 @@
 class Player:
-    _name = ""
-    _active = True
-
+    def __init__(self, name):
+        self._name = name
+        self._active = True
     def name(self):
         return self._name
 
@@ -13,6 +13,3 @@ class Player:
 
     def reenter(self):
         self._active = True
-
-    def __init__(self, name):
-        self._name = name

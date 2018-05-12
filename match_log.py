@@ -4,10 +4,11 @@ import operator
 
 
 class MatchResult:
-    _player_a = None
-    _player_b = None
-    _player_a_wins = 0
-    _player_b_wins = 0
+    def __init__(self, player_a, player_b, wins_a, wins_b):
+        self._player_a = player_a
+        self._player_b = player_b
+        self._player_a_wins = wins_a
+        self._player_b_wins = wins_b
 
 
     def has_players(self, player_a, player_b):
@@ -34,15 +35,9 @@ class MatchResult:
         return None
 
 
-    def __init__(self, player_a, player_b, wins_a, wins_b):
-        self._player_a = player_a
-        self._player_b = player_b
-        self._player_a_wins = wins_a
-        self._player_b_wins = wins_b
-
-
 class MatchLog:
-    _entries = []
+    def __init__(self):
+        self._entries = []
 
 
     def add_result(self, player_a, player_b, wins_a, wins_b):
@@ -109,7 +104,6 @@ class MatchLog:
     def best_bye_candidate(self):
         if len(self.active_players()) % 2 == 0:
             return None
-        players = self.players()
         ranking = self.rank_score_pairs() # Contains active only
         lowest_score = min([e[1] for e in ranking])
         lowest_scoring_players = [player \
@@ -121,8 +115,10 @@ class MatchLog:
         return random.choice(byeable_players)
 
 
-    def matchup_graph(self, bye_player=None):
-        players = list(self.players())
+    def matchup_graph(self, extra_players=[], bye_player=None):
+        players = list(set(list(self.players()) + extra_players))
+        if bye_player is not None and bye_player not in players:
+            players.append(bye_player)
         graph = nx.Graph()
         for p in players:
             graph.add_node(p)
@@ -132,8 +128,10 @@ class MatchLog:
                     (pa.is_active() and pb.is_active()) and \
                     (pa != bye_player and pb != bye_player)):
 
+                    # Ensure random result if multiple optimums exist
                     cost = self.matchup_cost(pa, pb) +\
                            random.uniform(0, 0.99)
+
                     graph.add_edge(pa, pb, weight=-cost)
         return graph
 

@@ -1,33 +1,49 @@
 import networkx as nx
 import random
+from os import linesep
 from player import Player
 from match_log import MatchLog
 
 
 class Matchup:
-    player_a = None
-    player_b = None
-    cost = 0
-
-
-    def is_bye(self):
-        return player_b is None
-
-
     def __init__(self, player_a, player_b, cost):
         self.player_a = player_a
         self.player_b = player_b
         self.cost = cost
 
 
+    def is_bye(self):
+        return player_b is None
+
+
 class Matchups:
-    pairs = []
-    bye_player = None
+    def __init__(self):
+        self.pairs = []
+        self.bye_player = None
+
+    def string(self):
+        rslt = ""
+        for matchup in self.pairs:
+            rslt += (matchup.player_a.name() + " VS. " + \
+                     matchup.player_b.name() + linesep)
+        if self.bye_player is not None:
+            rslt += (self.bye_player.name() + " gets a bye." + linesep)
+        return rslt.rstrip() # Remove last endline
 
 
 class Tournament:
-    _match_log = MatchLog()
-    _players = []
+    def __init__(self):
+        self._match_log = MatchLog()
+        self._players = []
+
+
+    def add_player(self, player):
+        self._update_players([player])
+
+
+    def add_player_by_name(self, player_name):
+        self.add_player(Player(player_name))
+
 
     def add_result(self, player_a, player_b, wins_a, wins_b):
         self._update_players([player_a, player_b])
@@ -51,8 +67,16 @@ class Tournament:
 
 
     def round_matchups(self):
-        bye = self._match_log.best_bye_candidate()
-        graph = self._match_log.matchup_graph(bye)
+        if len(self._players) == 0:
+            return Matchups()
+
+        bye_player = self._match_log.best_bye_candidate()
+
+        # match_log only handles players with match results
+        if bye_player is None and len(self._players) % 2 == 1:
+            bye_player = random.choice(self._players)
+
+        graph = self._match_log.matchup_graph(self._players, bye_player)
         mate = nx.max_weight_matching(graph, maxcardinality=True)
 
         # Extract pairs
@@ -75,18 +99,9 @@ class Tournament:
         for e in pairs:
             cost = self._match_log.matchup_cost(e[0], e[1])
             matchups.pairs.append(Matchup(e[0], e[1], cost))
-        matchups.bye_player = bye
+        matchups.bye_player = bye_player
 
         return matchups
-
-
-    def print_round_matchups(self):
-        matchups = self.round_matchups()
-        for matchup in matchups.pairs:
-            print(matchup.player_a.name(), "VS.", \
-                  matchup.player_b.name())
-        if matchups.bye_player is not None:
-            print(matchups.bye_player.name(), "gets a bye.")
 
 
     def _player_name_player(self, player_name):
