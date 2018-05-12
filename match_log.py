@@ -99,8 +99,7 @@ class MatchLog:
                     (pa != bye_player and pb != bye_player)):
 
                     # Ensure random result if multiple optimums exist
-                    cost = self.matchup_cost(pa, pb) +\
-                           random.uniform(0, 0.99)
+                    cost = self.matchup_cost(pa, pb) + random.uniform(0, 0.99)
 
                     graph.add_edge(pa, pb, weight=-cost)
         return graph

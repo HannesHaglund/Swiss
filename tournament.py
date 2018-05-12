@@ -79,10 +79,7 @@ class Tournament:
             return Matchups()
 
         bye_player = self._best_bye_candidate()
-
-        # match_log only handles players with match results
-        if bye_player is None and len(self._players) % 2 == 1:
-            bye_player = random.choice(self._players)
+        assert((len(self._players) % 2 == 0) or (bye_player is not None))
 
         graph = self._match_log.matchup_graph(self._players, bye_player)
         mate = nx.max_weight_matching(graph, maxcardinality=True)
@@ -91,11 +88,12 @@ class Tournament:
         matched_players = []
         pairs = []
         for k, v in mate:
-            matched_players.append(k)
+            assert(k != bye_player)
+            assert(v != bye_player)
             if (k, v) not in pairs:
                 pairs.append((k, v))
 
-        # Sort pairs by wins
+        Sort pairs by wins
         for i, pair in enumerate(pairs):
             wins_zero = self._match_log.times_match_win(pair[0])
             wins_one = self._match_log.times_match_win(pair[1])
