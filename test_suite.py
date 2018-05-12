@@ -34,6 +34,16 @@ class TestMatchupPossibilities(unittest.TestCase):
         self.assertEqual(m.pairs, [])
         self.assertEqual(m.bye_player, self.players[0])
 
+    def test_three_players_worst_performer_gets_bye(self):
+        self.tournament.add_player(self.players[0])
+        self.tournament.add_player(self.players[1])
+        self.tournament.add_player(self.players[2])
+        self.tournament.add_result(self.players[0], self.players[1], 1, 0)
+        self.tournament.add_result(self.players[1], self.players[2], 1, 0)
+        m = self.tournament.round_matchups()
+        self.assertTrue(m.players_are_matched(self.players[0], self.players[1]))
+        self.assertEquals(len(m.pairs), 1)
+        self.assertEqual(m.bye_player, self.players[2])
 
 if __name__ == "__main__":
     unittest.main()

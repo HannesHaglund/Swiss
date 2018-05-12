@@ -1,7 +1,5 @@
 import networkx as nx
 import random
-import operator
-
 
 class MatchResult:
     def __init__(self, player_a, player_b, wins_a, wins_b):
@@ -87,34 +85,6 @@ class MatchLog:
         return rslt
 
 
-    def rank_score_pairs(self, unlogged_players=[]):
-        active_unlogged = [p for p in unlogged_players \
-                           if p.is_active()]
-        players = self.active_players() + active_unlogged
-        score_player_pairs = [(self.times_match_win(p), p) \
-                              for p in players]
-        pairs_by_name = sorted(score_player_pairs, \
-                               key=lambda e: e[0].name())
-        pairs_by_win = sorted(match_wins.items(), \
-                              key=operator.itemgetter(1))
-        pairs_by_win.reverse() # Best to worst
-        return [e for e in pairs_by_win if e[0].is_active()]
-
-
-    def best_bye_candidate(self):
-        if len(self.active_players()) % 2 == 0:
-            return None
-        ranking = self.rank_score_pairs() # Contains active only
-        lowest_score = min([e[1] for e in ranking])
-        lowest_scoring_players = [player \
-                                  for (player, score) in ranking \
-                                  if score <= lowest_score]
-        min_byes = self._min_active_bye_count()
-        byeable_players = [p for p in lowest_scoring_players \
-                           if self.times_got_bye(p) == min_byes]
-        return random.choice(byeable_players)
-
-
     def matchup_graph(self, extra_players=[], bye_player=None):
         players = list(set(list(self.players()) + extra_players))
         if bye_player is not None and bye_player not in players:
@@ -145,7 +115,7 @@ class MatchLog:
         return PREV_MATCH_COST * times_played + wins_diff
 
 
-    def _min_active_bye_count(self):
+    def min_active_bye_count(self):
         byes = []
         players = self.active_players()
         for p in players:

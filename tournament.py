@@ -78,7 +78,7 @@ class Tournament:
         if len(self._players) == 0:
             return Matchups()
 
-        bye_player = self._match_log.best_bye_candidate()
+        bye_player = self._best_bye_candidate()
 
         # match_log only handles players with match results
         if bye_player is None and len(self._players) % 2 == 1:
@@ -110,6 +110,32 @@ class Tournament:
         matchups.bye_player = bye_player
 
         return matchups
+
+
+    def _best_bye_candidate(self):
+        if len(self._players) % 2 == 0:
+            return None
+        ranking = self._rank_score_pairs() # Contains active players only
+        lowest_score = min([e[0] for e in ranking])
+        lowest_scoring_players = [player \
+                                  for (score, player) in ranking \
+                                  if score <= lowest_score]
+        min_byes = self._match_log.min_active_bye_count()
+        byeable_players = [p for p in lowest_scoring_players \
+                           if self._match_log.times_got_bye(p) == min_byes]
+        return random.choice(byeable_players)
+
+
+    def _rank_score_pairs(self):
+        active_players = [p for p in self._players if p.is_active()]
+        score_player_pairs = [(self._match_log.times_match_win(p), p) \
+                              for p in active_players]
+        pairs_by_name = sorted(score_player_pairs, \
+                               key=lambda e: e[1].name())
+        pairs_by_win = sorted(pairs_by_name, \
+                              key=lambda e: e[0])
+        pairs_by_win.reverse() # Best to worst
+        return [e for e in pairs_by_win if e[1].is_active()]
 
 
     def _player_name_player(self, player_name):
