@@ -86,9 +86,11 @@ class MatchLog:
 
 
     def matchup_graph(self, extra_players=[], bye_player=None):
+        # Sum of extra randomness in a max cardinality matching must not surpass 0.99
         players = list(set(list(self.players()) + extra_players))
         if bye_player is not None and bye_player not in players:
             players.append(bye_player)
+        max_extra_randomness = 0.99 / len(players)
         graph = nx.Graph()
         for p in players:
             graph.add_node(p)
@@ -99,7 +101,8 @@ class MatchLog:
                     (pa != bye_player and pb != bye_player)):
 
                     # Ensure random result if multiple optimums exist
-                    cost = self.matchup_cost(pa, pb) + random.uniform(0, 0.99)
+                    randomness = random.uniform(0, max_extra_randomness)
+                    cost = self.matchup_cost(pa, pb) + randomness
 
                     graph.add_edge(pa, pb, weight=-cost)
         return graph

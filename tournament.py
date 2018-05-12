@@ -1,8 +1,11 @@
 import networkx as nx
 import random
+import math
+import itertools
 from os import linesep
 from player import Player
 from match_log import MatchLog
+
 
 
 class Matchup:
@@ -37,6 +40,9 @@ class Matchups:
             if m.player_a == pb and m.player_b == pa:
                 return True
         return False
+
+    def badness(self):
+        return sum([m.cost for m in self.pairs])
 
 
 class Tournament:
@@ -78,7 +84,10 @@ class Tournament:
         if len(self._players) == 0:
             return Matchups()
 
-        bye_player = self._best_bye_candidate()
+        bye_candidates = self._best_bye_candidates()
+        bye_player = random.choice(bye_candidates) \
+                     if len(bye_candidates) > 0 else None
+
         assert((len(self._players) % 2 == 0) or (bye_player is not None))
 
         graph = self._match_log.matchup_graph(self._players, bye_player)
@@ -93,7 +102,7 @@ class Tournament:
             if (k, v) not in pairs:
                 pairs.append((k, v))
 
-        Sort pairs by wins
+        # Sort pairs by wins
         for i, pair in enumerate(pairs):
             wins_zero = self._match_log.times_match_win(pair[0])
             wins_one = self._match_log.times_match_win(pair[1])
@@ -110,9 +119,56 @@ class Tournament:
         return matchups
 
 
-    def _best_bye_candidate(self):
+    def number_of_possible_matchups(self):
+        # Brute force
+        an_optimal_matchup = self.round_matchups()
+        optimal_badness = math.floor(an_optimal_matchup.badness())
+        bye_candidates = self._best_bye_candidates()
+        perms = list(itertools.permutations(self._players))
+        pair_permutations_count = math.factorial(math.floor(len(self._players) / 2))
+
+        if len(perms) == 1:
+            return 1
+
+        rslt = 0
+
+        for perm in perms:
+
+            # Check for legal bye player and ignore him
+            if len(self._players) % 2 == 1:
+                if perm[-1] not in bye_candidates:
+                    continue
+                perm = perm[:-1]
+
+            # Extract every two elements
+            assert(len(perm) % 2 == 0)
+            every_two_elements = []
+            for i in range(round(len(perm) / 2)):
+                every_two_elements.append((perm[2*i], perm[2*i+1]))
+
+            # Remove perm with only internal order changed
+            if any([a.name() < b.name() for (a, b) in every_two_elements]):
+                continue
+
+            # Calculate badness
+            badness = 0
+            for a,b in every_two_elements:
+                badness += self._match_log.matchup_cost(a, b)
+
+            # Is badness optimal?
+            assert(badness >= optimal_badness)
+            if badness == optimal_badness:
+                # Since there can be different permutations of two-pairs,
+                # we'll get to this point n! times, where n is len(every_two_elements)
+                rslt += 1 / pair_permutations_count
+
+        assert(abs(rslt - round(rslt) < 0.01))
+        return round(rslt)
+
+
+    def _best_bye_candidates(self):
         if len(self._players) % 2 == 0:
-            return None
+            return []
         ranking = self._rank_score_pairs() # Contains active players only
         lowest_score = min([e[0] for e in ranking])
         lowest_scoring_players = [player \
@@ -121,8 +177,7 @@ class Tournament:
         min_byes = self._match_log.min_active_bye_count()
         byeable_players = [p for p in lowest_scoring_players \
                            if self._match_log.times_got_bye(p) == min_byes]
-        return random.choice(byeable_players)
-
+        return byeable_players
 
     def _rank_score_pairs(self):
         active_players = [p for p in self._players if p.is_active()]
