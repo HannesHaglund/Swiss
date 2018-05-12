@@ -30,6 +30,14 @@ class Matchups:
             rslt += (self.bye_player.name() + " gets a bye." + linesep)
         return rslt.rstrip() # Remove last endline
 
+    def players_are_matched(self, pa, pb):
+        for m in self.pairs:
+            if m.player_a == pa and m.player_b == pb:
+                return True
+            if m.player_a == pb and m.player_b == pa:
+                return True
+        return False
+
 
 class Tournament:
     def __init__(self):
