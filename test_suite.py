@@ -67,6 +67,20 @@ class TestMatchupPossibilities(unittest.TestCase):
         self.assertEqual(m.bye_player, self.players[2])
         self.assertEqual(self.tournament.number_of_possible_matchups(), 1)
 
+    def test_byed_player_dont_get_byed_again(self):
+        self.tournament.add_player(self.players[0])
+        self.tournament.add_player(self.players[1])
+        self.tournament.add_player(self.players[2])
+        self.tournament.add_result(self.players[0], self.players[1], 1, 0)
+        self.tournament.add_result(self.players[0], self.players[2], 1, 0)
+        self.tournament.add_bye(self.players[1])
+        self.tournament.add_bye(self.players[2])
+        m = self.tournament.round_matchups()
+        self.assertTrue(m.players_are_matched(self.players[1], self.players[2]))
+        self.assertEqual(len(m.pairs), 1)
+        self.assertEqual(m.bye_player, self.players[0])
+        self.assertEqual(self.tournament.number_of_possible_matchups(), 1)
+
     def test_first_round_any_player_can_be_randomly_byed(self):
         self.tournament.add_player(self.players[0])
         self.tournament.add_player(self.players[1])

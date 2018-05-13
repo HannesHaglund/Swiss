@@ -14,7 +14,6 @@ class Matchup:
         self.player_b = player_b
         self.cost = cost
 
-
     def is_bye(self):
         return player_b is None
 
@@ -35,9 +34,8 @@ class Matchups:
 
     def players_are_matched(self, pa, pb):
         for m in self.pairs:
-            if m.player_a == pa and m.player_b == pb:
-                return True
-            if m.player_a == pb and m.player_b == pa:
+            if (m.player_a == pa and m.player_b == pb or \
+                m.player_a == pb and m.player_b == pa):
                 return True
         return False
 
@@ -53,10 +51,6 @@ class Tournament:
 
     def add_player(self, player):
         self._update_players([player])
-
-
-    def add_player_by_name(self, player_name):
-        self.add_player(Player(player_name))
 
 
     def add_result(self, player_a, player_b, wins_a, wins_b):
@@ -90,7 +84,7 @@ class Tournament:
 
         assert((len(self._players) % 2 == 0) or (bye_player is not None))
 
-        graph = self._match_log.matchup_graph(self._players, bye_player)
+        graph = self._matchup_graph(bye_player)
         mate = nx.max_weight_matching(graph, maxcardinality=True)
 
         # Extract pairs
@@ -133,7 +127,6 @@ class Tournament:
         rslt = 0
 
         for perm in perms:
-
             # Check for legal bye player and ignore him
             if len(self._players) % 2 == 1:
                 if perm[-1] not in bye_candidates:
@@ -162,22 +155,47 @@ class Tournament:
                 # we'll get to this point n! times, where n is len(every_two_elements)
                 rslt += 1 / pair_permutations_count
 
-        assert(abs(rslt - round(rslt) < 0.01))
+        assert(abs(rslt - round(rslt)) < 0.01)
         return round(rslt)
+
+
+    def _matchup_graph(self, bye_player=None):
+        players = self._players
+        if bye_player is not None and bye_player not in players:
+            players.append(bye_player)
+        # Sum of extra randomness in a max cardinality matching must not surpass 0.99
+        max_extra_randomness = 0.99 / len(players)
+        graph = nx.Graph()
+        for p in players:
+            graph.add_node(p)
+        for i, pa in enumerate(players):
+            for j, pb in enumerate(players):
+                if (j < i and \
+                    (pa.is_active() and pb.is_active()) and \
+                    (pa != bye_player and pb != bye_player)):
+
+                    # Ensure random result if multiple optimums exist
+                    randomness = random.uniform(0, max_extra_randomness)
+                    cost = self._match_log.matchup_cost(pa, pb) + randomness
+
+                    graph.add_edge(pa, pb, weight=-cost)
+        return graph
 
 
     def _best_bye_candidates(self):
         if len(self._players) % 2 == 0:
             return []
         ranking = self._rank_score_pairs() # Contains active players only
-        lowest_score = min([e[0] for e in ranking])
-        lowest_scoring_players = [player \
-                                  for (score, player) in ranking \
-                                  if score <= lowest_score]
         min_byes = self._match_log.min_active_bye_count()
-        byeable_players = [p for p in lowest_scoring_players \
-                           if self._match_log.times_got_bye(p) == min_byes]
-        return byeable_players
+        ranking_of_byeable = [e \
+                             for e in ranking \
+                             if self._match_log.times_got_bye(e[1]) == min_byes]
+        lowest_score = min([e[0] for e in ranking_of_byeable])
+        lowest_scoring_players = [player \
+                                  for (score, player) in ranking_of_byeable \
+                                  if score <= lowest_score]
+        return lowest_scoring_players
+
 
     def _rank_score_pairs(self):
         active_players = [p for p in self._players if p.is_active()]
