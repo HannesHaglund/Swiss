@@ -2,7 +2,7 @@ import networkx as nx
 import random
 import math
 import itertools
-from tournament import Matchups, Matchup
+from matchups import Matchup, Matchups
 from match_log import MatchLog
 from player import Player
 
