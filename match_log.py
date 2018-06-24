@@ -53,7 +53,7 @@ class MatchLog:
         players_b = [e._player_b \
                      for e in self._entries \
                      if e._player_b is not None];
-        return set(players_a + players_b)
+        return list(set(players_a + players_b))
 
 
     def active_players(self):
@@ -83,38 +83,6 @@ class MatchLog:
             if winner == player:
                 rslt += 1
         return rslt
-
-
-    def matchup_graph(self, extra_players=[], bye_player=None):
-        # Sum of extra randomness in a max cardinality matching must not surpass 0.99
-        players = list(set(list(self.players()) + extra_players))
-        if bye_player is not None and bye_player not in players:
-            players.append(bye_player)
-        max_extra_randomness = 0.99 / len(players)
-        graph = nx.Graph()
-        for p in players:
-            graph.add_node(p)
-        for i, pa in enumerate(players):
-            for j, pb in enumerate(players):
-                if (j < i and \
-                    (pa.is_active() and pb.is_active()) and \
-                    (pa != bye_player and pb != bye_player)):
-
-                    # Ensure random result if multiple optimums exist
-                    randomness = random.uniform(0, max_extra_randomness)
-                    cost = self.matchup_cost(pa, pb) + randomness
-
-                    graph.add_edge(pa, pb, weight=-cost)
-        return graph
-
-
-    def matchup_cost(self, player_a, player_b):
-        a_wins = self.times_match_win(player_a)
-        b_wins = self.times_match_win(player_b)
-        wins_diff = abs(a_wins - b_wins)
-        times_played = self.times_matched(player_a, player_b)
-        PREV_MATCH_COST = 10000
-        return PREV_MATCH_COST * times_played + wins_diff
 
 
     def min_active_bye_count(self):
