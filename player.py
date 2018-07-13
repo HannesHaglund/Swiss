@@ -18,3 +18,10 @@ class Player:
 
     def reenter(self):
         self._active = True
+
+
+# Special player, used to be matched up with player who is to be byed
+_bye_dummy = Player("BYE_PLAYER_ac2da556-27ad-4323-b5cc-f3eab047ed97")
+
+def bye_dummy():
+    return _bye_dummy
