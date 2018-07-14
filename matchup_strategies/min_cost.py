@@ -1,5 +1,5 @@
 from matchup_optimization import optimal_matchup, number_of_optimal_matchups
-from ordered_cost_functions import OrderedCostFunctions
+from matchup_cost_map import matchup_cost_map
 from player import bye_dummy
 
 def _matchup_cost_functions(match_log):
@@ -25,12 +25,7 @@ def _matchup_cost_functions(match_log):
     def _win_diff(player_a, player_b):
         return abs(match_log.times_match_win(player_a) - match_log.times_match_win(player_a))
 
-    o = OrderedCostFunctions()
-    o.append(_times_bye)
-    o.append(_bye_player_wins)
-    o.append(_times_faced)
-    o.append(_win_diff)
-    return o
+    return [_times_bye, _bye_player_wins, _times_faced, _win_diff]
 
 
 def pairings(tournament):
@@ -44,8 +39,16 @@ def pairings(tournament):
     2. Minimize number of wins of bye player
     3. Minimize cost of other matchups
     """
-    return optimal_matchup(tournament, _matchup_cost_functions(tournament.match_log()))
+    players = tournament.players() + \
+              ([bye_dummy()] if len(tournament.players()) % 2 == 1 else [])
+    cost_functions = _matchup_cost_functions(tournament.match_log())
+    return optimal_matchup(tournament, \
+                           matchup_cost_map(players, cost_functions))
 
 
 def number_of_possible_pairings(tournament):
-    return number_of_optimal_matchups(tournament, _matchup_cost_functions(tournament.match_log()))
+    players = tournament.players() + \
+              ([bye_dummy()] if len(tournament.players()) % 2 == 1 else [])
+    cost_functions = _matchup_cost_functions(tournament.match_log())
+    return number_of_optimal_matchups(tournament, \
+                                      matchup_cost_map(players, cost_functions))

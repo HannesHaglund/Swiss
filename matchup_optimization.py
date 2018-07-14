@@ -5,10 +5,9 @@ import itertools
 from matchups import Matchup, Matchups
 from match_log import MatchLog
 from player import Player, bye_dummy
-from ordered_cost_functions import OrderedCostFunctions
 
 
-def optimal_matchup(tournament, ordered_cost_functions):
+def optimal_matchup(tournament, cost_map):
     match_log = tournament.match_log()
     players = tournament.players()
     if len(players) % 2 != 0:
@@ -16,8 +15,6 @@ def optimal_matchup(tournament, ordered_cost_functions):
 
     if len(players) == 0:
         return Matchups()
-
-    ordered_cost_functions.adjust_max_numbers(players)
 
     def _gen_graph_without_edges():
         graph = nx.Graph()
@@ -32,7 +29,7 @@ def optimal_matchup(tournament, ordered_cost_functions):
                 if (j < i and pa.is_active() and pb.is_active()):
                     # Ensure random result if multiple optimums exist
                     randomness = random.uniform(0, 0.99)
-                    cost = ordered_cost_functions.cost(pa, pb) + randomness
+                    cost = cost_map[pa][pb] + randomness
                     graph.add_edge(pa, pb, weight=-cost)
         return graph
 
@@ -53,7 +50,7 @@ def optimal_matchup(tournament, ordered_cost_functions):
         # Format as matchups
         matchups = Matchups()
         for e in pairs:
-            cost = ordered_cost_functions.cost(e[0], e[1])
+            cost = cost_map[e[0]][e[1]]
             if e[0] == bye_dummy():
                 assert(matchups.bye_player is None)
                 matchups.bye_player = e[1]
@@ -70,11 +67,10 @@ def optimal_matchup(tournament, ordered_cost_functions):
     return _pairs_from_graph(graph)
 
 
-def number_of_optimal_matchups(tournament, ordered_cost_functions):
+def number_of_optimal_matchups(tournament, cost_map):
     players = tournament.players()
     if len(players) % 2 != 0:
         players.append(bye_dummy())
-    ordered_cost_functions.adjust_max_numbers(players)
     # Brute force
     possible_pairings_in_round = round(len(players) / 2) # Always even
     perms = itertools.permutations(players)
@@ -84,7 +80,7 @@ def number_of_optimal_matchups(tournament, ordered_cost_functions):
         for i in range(possible_pairings_in_round):
             pa = perm[i*2]
             pb = perm[i*2 + 1]
-            cost += ordered_cost_functions.cost(pa, pb)
+            cost += cost_map[pa][pb]
         pairs_costs.append(cost)
     min_cost = min(pairs_costs)
     s = sum([1 if c == min_cost else 0 for c in pairs_costs])
