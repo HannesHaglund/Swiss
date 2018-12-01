@@ -150,7 +150,20 @@ class Tournament:
         pairs_by_win = sorted(pairs_by_name, \
                               key=lambda e: e[0])
         pairs_by_win.reverse() # Best to worst
-        return [e for e in pairs_by_win if e[1].is_active()]
+        return pairs_by_win
+
+
+    def ranking_string(self):
+        rslt = ""
+        rank = self.rank_score_pairs()
+        max_name_length = max([len(e[1].name()) for e in rank])
+        max_numerals = len(str(len(rank)))
+        for i,e in enumerate(rank):
+            layout = "#{:<" + str(max_numerals) + "}: {: <" + str(max_name_length) + "} {}"
+            cols = [str(i), e[1].name(), "("+str(e[0])+" wins)"]
+            rslt += layout.format(*cols)
+            rslt += linesep
+        return rslt
 
 
     def _player_name_player(self, player_name):

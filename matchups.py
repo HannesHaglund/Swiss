@@ -4,6 +4,10 @@ class Matchup:
         self.player_b = player_b
         self.cost = cost
 
+    def string(self):
+        return (self.player_a.name() + " VS. " + \
+                self.player_b.name())
+
     def is_bye(self):
         return player_b is None
 
@@ -16,8 +20,7 @@ class Matchups:
     def string(self):
         rslt = ""
         for matchup in self.pairs:
-            rslt += (matchup.player_a.name() + " VS. " + \
-                     matchup.player_b.name() + linesep)
+            rslt += matchup.string() + linesep
         if self.bye_player is not None:
             rslt += (self.bye_player.name() + " gets a bye." + linesep)
         return rslt.rstrip() # Remove last endline

@@ -23,7 +23,7 @@ def _matchup_cost_functions(match_log):
         return match_log.times_matched(player_a, player_b)
 
     def _win_diff(player_a, player_b):
-        return abs(match_log.times_match_win(player_a) - match_log.times_match_win(player_a))
+        return abs(match_log.times_match_win(player_a) - match_log.times_match_win(player_b))
 
     return [_times_bye, _bye_player_wins, _times_faced, _win_diff]
 
