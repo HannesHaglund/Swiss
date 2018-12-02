@@ -67,10 +67,16 @@ def matchup_cost_map(players, cost_functions):
             result += cost
         return result
 
+    def _assert_two_of_each_value(cost_map):
+        values = [v for (k,v) in cost_map.items()]
+        for v in values:
+            assert(values.count(v) == 1)
+
     cost_map = _init_cost_map()
     max_bits = _max_bits_used_in_function_in_round()
     for (pa, pb) in all_possible_pairs:
         _set_cost(cost_map, pa, pb, _eval_cost_functions(pa, pb, max_bits))
     for (pa, pb) in all_possible_pairs:
         assert(cost_map[pa][pb] == cost_map[pb][pa])
+    _assert_two_of_each_value(cost_map)
     return cost_map

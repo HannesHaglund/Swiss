@@ -11,24 +11,52 @@ class TestMatchupPossibilities(unittest.TestCase):
         self.players = [Player(str(i)) for i in range(32)]
 
 
-    def test_6_players_have_15_possible_matchups(self):
+    def test_6_players_have_1_possible_matchups(self):
         for i in range(6):
             self.tournament.add_player(self.players[i])
-        self.assertEqual(self.tournament.number_of_possible_pairings(), 15)
+        self.assertEqual(self.tournament.number_of_possible_pairings(), 1)
 
 
-    def test_7_players_have_105_possible_matchups(self):
+    def test_7_players_have_1_possible_matchups(self):
         for i in range(7):
             self.tournament.add_player(self.players[i])
-        self.assertEqual(self.tournament.number_of_possible_pairings(), 105)
+        self.assertEqual(self.tournament.number_of_possible_pairings(), 1)
 
 
-    def test_6_players_result_removes_3_matchups(self):
+    def test_top_half_faces_bottom_half(self):
         for i in range(6):
             self.tournament.add_player(self.players[i])
-        self.tournament.add_result(self.players[0], self.players[1], 1, 0)
-        self.assertEqual(self.tournament.number_of_possible_pairings(), 15 - 3)
+        matchups = self.tournament.pairings()
+        self.assertTrue(matchups.players_are_matched(self.players[0], \
+                                                     self.players[3]))
+        self.assertTrue(matchups.players_are_matched(self.players[1], \
+                                                     self.players[4]))
+        self.assertTrue(matchups.players_are_matched(self.players[2], \
+                                                     self.players[5]))
 
+    def test_top_half_faces_bottom_half_after_one_round(self):
+        for i in range(8):
+            self.tournament.add_player(self.players[i])
+        matchups = self.tournament.pairings()
+        for matchup in matchups.pairs:
+            self.tournament.add_result(matchup.player_a, matchup.player_b, 1, 0)
+        self.assertEqual(self.tournament.match_log().times_match_win(self.players[0]), 0)
+        self.assertEqual(self.tournament.match_log().times_match_win(self.players[1]), 1)
+        self.assertEqual(self.tournament.match_log().times_match_win(self.players[2]), 0)
+        self.assertEqual(self.tournament.match_log().times_match_win(self.players[3]), 1)
+        self.assertEqual(self.tournament.match_log().times_match_win(self.players[4]), 1)
+        self.assertEqual(self.tournament.match_log().times_match_win(self.players[5]), 0)
+        self.assertEqual(self.tournament.match_log().times_match_win(self.players[6]), 1)
+        self.assertEqual(self.tournament.match_log().times_match_win(self.players[7]), 0)
+        matchups = self.tournament.pairings()
+        self.assertTrue(matchups.players_are_matched(self.players[0], \
+                                                     self.players[5]))
+        self.assertTrue(matchups.players_are_matched(self.players[1], \
+                                                     self.players[4]))
+        self.assertTrue(matchups.players_are_matched(self.players[2], \
+                                                     self.players[7]))
+        self.assertTrue(matchups.players_are_matched(self.players[3], \
+                                                     self.players[6]))
 
     def test_4_players_two_rounds(self):
         for i in range(4):
@@ -157,23 +185,6 @@ class TestMatchupPossibilities(unittest.TestCase):
         self.assertEqual(len(m.pairs), 1)
         self.assertEqual(m.bye_player, self.players[0])
         self.assertEqual(self.tournament.number_of_possible_pairings(), 1)
-
-
-    def test_first_round_any_player_can_be_randomly_byed(self):
-        self.tournament.add_player(self.players[0])
-        self.tournament.add_player(self.players[1])
-        self.tournament.add_player(self.players[2])
-        max_attempts = 8192
-        byed_players = set()
-        for i in range(max_attempts):
-            m = self.tournament.pairings()
-            self.assertEqual(len(m.pairs), 1)
-            self.assertIsNotNone(m.bye_player)
-            byed_players.add(m.bye_player)
-            if len(byed_players) == 3:
-                break
-        self.assertEqual(len(byed_players), 3)
-        self.assertEqual(self.tournament.number_of_possible_pairings(), 3)
 
 if __name__ == "__main__":
     unittest.main()

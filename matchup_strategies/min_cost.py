@@ -2,8 +2,11 @@ from matchup_optimization import optimal_matchup, number_of_optimal_matchups
 from matchup_cost_map import matchup_cost_map
 from player import bye_dummy
 
-def _matchup_cost_functions(match_log):
-    def _times_bye(player_a, player_b):
+def _matchup_cost_functions(tournament):
+
+    match_log = tournament.match_log()
+
+    def _minimize_times_bye(player_a, player_b):
         if (player_a == bye_dummy()):
             return match_log.times_got_bye(player_b)
         elif (player_b == bye_dummy()):
@@ -11,7 +14,7 @@ def _matchup_cost_functions(match_log):
         else:
             return 0
 
-    def _bye_player_wins(player_a, player_b):
+    def _minimize_bye_player_wins(player_a, player_b):
         if (player_a == bye_dummy()):
             return match_log.times_match_win(player_b)
         elif (player_b == bye_dummy()):
@@ -19,13 +22,32 @@ def _matchup_cost_functions(match_log):
         else:
             return 0
 
-    def _times_matched(player_a, player_b):
+    def _minimize_times_matched(player_a, player_b):
         return match_log.times_matched(player_a, player_b)
 
-    def _win_diff(player_a, player_b):
+    def _minimize_win_diff(player_a, player_b):
         return abs(match_log.times_match_win(player_a) - match_log.times_match_win(player_b))
 
-    return [_times_bye, _bye_player_wins, _times_matched, _win_diff]
+    def _maximize_cyclical_player_number_distance(player_a, player_b):
+        num_a = tournament.player_number_of_player(player_a)
+        num_b = tournament.player_number_of_player(player_b)
+        number_of_players = len(tournament.players())
+        return number_of_players - min( (num_a - num_b) % number_of_players, \
+                                        (num_b - num_a) % number_of_players)
+
+    def _minimize_player_a_number(player_a, player_b):
+        return tournament.player_number_of_player(player_a)
+
+    def _minimize_player_b_number(player_a, player_b):
+        return tournament.player_number_of_player(player_b)
+
+    return [_minimize_times_bye, \
+            _minimize_bye_player_wins, \
+            _minimize_times_matched, \
+            _minimize_win_diff, \
+            _maximize_cyclical_player_number_distance, \
+            _minimize_player_a_number, \
+            _minimize_player_b_number]
 
 
 def pairings(tournament):
@@ -41,7 +63,7 @@ def pairings(tournament):
     """
     players = tournament.players() + \
               ([bye_dummy()] if len(tournament.players()) % 2 == 1 else [])
-    cost_functions = _matchup_cost_functions(tournament.match_log())
+    cost_functions = _matchup_cost_functions(tournament)
     return optimal_matchup(tournament, \
                            matchup_cost_map(players, cost_functions))
 
@@ -49,6 +71,6 @@ def pairings(tournament):
 def number_of_possible_pairings(tournament):
     players = tournament.players() + \
               ([bye_dummy()] if len(tournament.players()) % 2 == 1 else [])
-    cost_functions = _matchup_cost_functions(tournament.match_log())
+    cost_functions = _matchup_cost_functions(tournament)
     return number_of_optimal_matchups(tournament, \
                                       matchup_cost_map(players, cost_functions))
