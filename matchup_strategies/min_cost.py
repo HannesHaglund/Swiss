@@ -19,13 +19,13 @@ def _matchup_cost_functions(match_log):
         else:
             return 0
 
-    def _times_faced(player_a, player_b):
+    def _times_matched(player_a, player_b):
         return match_log.times_matched(player_a, player_b)
 
     def _win_diff(player_a, player_b):
         return abs(match_log.times_match_win(player_a) - match_log.times_match_win(player_b))
 
-    return [_times_bye, _bye_player_wins, _times_faced, _win_diff]
+    return [_times_bye, _bye_player_wins, _times_matched, _win_diff]
 
 
 def pairings(tournament):

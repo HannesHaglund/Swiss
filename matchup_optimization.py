@@ -23,7 +23,6 @@ def optimal_matchup(tournament, cost_map):
         return graph
 
     def _add_matchup_cost_edges_to_graph(graph):
-        max_extra_randomness = 0.99 / len(players)
         for i, pa in enumerate(players):
             for j, pb in enumerate(players):
                 if (j < i and pa.is_active() and pb.is_active()):
