@@ -1,6 +1,7 @@
 import random
 import math
 import itertools
+import matchup_strategies.min_cost
 from os import linesep
 from player import Player
 from match_log import MatchLog
@@ -8,7 +9,8 @@ from ranking import Ranking
 
 
 class Tournament:
-    def __init__(self):
+    def __init__(self, matchup_strategy=matchup_strategies.min_cost):
+        self._matchup_strategy = matchup_strategy
         self._match_log = MatchLog()
         self._players = []
 
@@ -44,6 +46,14 @@ class Tournament:
     def add_bye_by_name(self, player_name):
         player = self._player_name_player(player_name)
         self._match_log.add_bye(player)
+
+
+    def pairings(self):
+        return self._matchup_strategy.pairings(self)
+
+
+    def number_of_possible_pairings(self):
+        return self._matchup_strategy.number_of_possible_pairings(self)
 
 
     def ranking(self):
