@@ -23,40 +23,40 @@ class TestMatchupPossibilities(unittest.TestCase):
         self.assertEqual(self.tournament.number_of_possible_pairings(), 1)
 
 
-    def test_top_half_faces_bottom_half(self):
+    def test_players_face_closest_player_in_list(self):
         for i in range(6):
             self.tournament.add_player(self.players[i])
         matchups = self.tournament.pairings()
         self.assertTrue(matchups.players_are_matched(self.players[0], \
-                                                     self.players[3]))
-        self.assertTrue(matchups.players_are_matched(self.players[1], \
-                                                     self.players[4]))
+                                                     self.players[1]))
         self.assertTrue(matchups.players_are_matched(self.players[2], \
+                                                     self.players[3]))
+        self.assertTrue(matchups.players_are_matched(self.players[4], \
                                                      self.players[5]))
 
-    def test_top_half_faces_bottom_half_after_one_round(self):
+    def test_players_face_closest_player_in_list_after_one_round(self):
         for i in range(8):
             self.tournament.add_player(self.players[i])
         matchups = self.tournament.pairings()
         for matchup in matchups.pairs:
             self.tournament.add_result(matchup.player_a, matchup.player_b, 1, 0)
-        self.assertEqual(self.tournament.match_log().times_match_win(self.players[0]), 0)
-        self.assertEqual(self.tournament.match_log().times_match_win(self.players[1]), 1)
-        self.assertEqual(self.tournament.match_log().times_match_win(self.players[2]), 0)
-        self.assertEqual(self.tournament.match_log().times_match_win(self.players[3]), 1)
+        self.assertEqual(self.tournament.match_log().times_match_win(self.players[0]), 1)
+        self.assertEqual(self.tournament.match_log().times_match_win(self.players[1]), 0)
+        self.assertEqual(self.tournament.match_log().times_match_win(self.players[2]), 1)
+        self.assertEqual(self.tournament.match_log().times_match_win(self.players[3]), 0)
         self.assertEqual(self.tournament.match_log().times_match_win(self.players[4]), 1)
         self.assertEqual(self.tournament.match_log().times_match_win(self.players[5]), 0)
         self.assertEqual(self.tournament.match_log().times_match_win(self.players[6]), 1)
         self.assertEqual(self.tournament.match_log().times_match_win(self.players[7]), 0)
         matchups = self.tournament.pairings()
         self.assertTrue(matchups.players_are_matched(self.players[0], \
-                                                     self.players[5]))
-        self.assertTrue(matchups.players_are_matched(self.players[1], \
-                                                     self.players[4]))
-        self.assertTrue(matchups.players_are_matched(self.players[2], \
-                                                     self.players[7]))
-        self.assertTrue(matchups.players_are_matched(self.players[3], \
+                                                     self.players[2]))
+        self.assertTrue(matchups.players_are_matched(self.players[4], \
                                                      self.players[6]))
+        self.assertTrue(matchups.players_are_matched(self.players[1], \
+                                                     self.players[3]))
+        self.assertTrue(matchups.players_are_matched(self.players[5], \
+                                                     self.players[7]))
 
     def test_4_players_two_rounds(self):
         for i in range(4):

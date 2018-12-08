@@ -28,27 +28,23 @@ def _matchup_cost_functions(tournament):
     def _minimize_win_diff(player_a, player_b):
         return abs(match_log.times_match_win(player_a) - match_log.times_match_win(player_b))
 
-    def _maximize_cyclical_player_number_distance(player_a, player_b):
+    def _minimize_player_number_diff(player_a, player_b):
         num_a = tournament.player_number_of_player(player_a)
         num_b = tournament.player_number_of_player(player_b)
-        number_of_players = len(tournament.players())
-        return number_of_players - min( (num_a - num_b) % number_of_players, \
-                                        (num_b - num_a) % number_of_players)
+        return abs(num_a - num_b)
 
-    def _minimize_player_a_number(player_a, player_b):
-        return tournament.player_number_of_player(player_a)
-
-    def _minimize_player_b_number(player_a, player_b):
-        return tournament.player_number_of_player(player_b)
+    def _maximize_player_number_sum(player_a, player_b):
+        player_count = len(tournament.players())
+        num_a = tournament.player_number_of_player(player_a)
+        num_b = tournament.player_number_of_player(player_b)
+        return 2*player_count - (num_a + num_b)
 
     return [_minimize_times_bye, \
             _minimize_bye_player_wins, \
             _minimize_times_matched, \
             _minimize_win_diff, \
-            _maximize_cyclical_player_number_distance, \
-            _minimize_player_a_number, \
-            _minimize_player_b_number]
-
+            _minimize_player_number_diff, \
+            _maximize_player_number_sum]
 
 def pairings(tournament):
     """

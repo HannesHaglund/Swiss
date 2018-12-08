@@ -23,12 +23,14 @@ def optimal_matchup(tournament, cost_map):
         return graph
 
     def _add_matchup_cost_edges_to_graph(graph):
+        done_costs = set()
         for i, pa in enumerate(players):
             for j, pb in enumerate(players):
                 if (j < i and pa.is_active() and pb.is_active()):
-                    # Ensure random result if multiple optimums exist
-                    randomness = random.uniform(0, 0.99)
-                    cost = cost_map[pa][pb] + randomness
+                    cost = cost_map[pa][pb]# + randomness
+                    if cost in done_costs:
+                        raise Exception("cost_map does not return unique values")
+                    done_costs.add(cost)
                     graph.add_edge(pa, pb, weight=-cost)
         return graph
 
@@ -57,7 +59,11 @@ def optimal_matchup(tournament, cost_map):
                 assert(matchups.bye_player is None)
                 matchups.bye_player = e[0]
             else:
-                matchups.pairs.append(Matchup(e[0], e[1], cost))
+                num_0 = tournament.player_number_of_player(e[0])
+                num_1 = tournament.player_number_of_player(e[1])
+                player_a = e[0] if num_0 < num_1 else e[1]
+                player_b = e[1] if player_a == e[0] else e[0]
+                matchups.pairs.append(Matchup(player_a, player_b, cost))
         # Set bye player
         return matchups
 
