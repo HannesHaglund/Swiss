@@ -186,5 +186,21 @@ class TestMatchupPossibilities(unittest.TestCase):
         self.assertEqual(m.bye_player, self.players[0])
         self.assertEqual(self.tournament.number_of_possible_pairings(), 1)
 
+    def test_smoke_ranking_string(self):
+        self.tournament.add_player(self.players[0])
+        s = self.tournament.ranking().string()
+        self.assertTrue("#1" in s)
+        self.assertTrue("(0 wins)" in s)
+        self.tournament.add_player(self.players[1])
+        s = self.tournament.ranking().string()
+        self.assertTrue("#2" in s)
+
+    def test_smoke_pairings_string(self):
+        self.tournament.add_player(self.players[0])
+        self.tournament.add_player(self.players[1])
+        s = self.tournament.pairings().string()
+        vs_s = self.players[0].name() + ' VS. ' + self.players[1].name()
+        self.assertEqual(s, vs_s)
+
 if __name__ == "__main__":
     unittest.main()

@@ -1,3 +1,4 @@
+from os import linesep
 
 class RankingEntry:
     def __init__(self, player, score, rank):
@@ -44,7 +45,7 @@ class Ranking:
         max_numerals = len(str(self._entries[-1].rank()))
         for i,entry in enumerate(self._entries):
             layout = "#{:<" + str(max_numerals) + "}: {: <" + str(max_name_length) + "} {}"
-            cols = [str(i), entry.player.name(), "("+str(entry.score())+" wins)"]
+            cols = [str(i+1), entry.player().name(), "("+str(entry.score())+" wins)"]
             rslt += layout.format(*cols)
             rslt += linesep
         return rslt

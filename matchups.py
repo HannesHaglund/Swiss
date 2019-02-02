@@ -1,3 +1,5 @@
+import os
+
 class Matchup:
     def __init__(self, player_a, player_b, cost):
         self.player_a = player_a
@@ -36,7 +38,7 @@ class Matchups:
     def string(self):
         rslt = ""
         for matchup in self.pairs:
-            rslt += matchup.string() + linesep
+            rslt += matchup.string() + os.linesep
         if self.bye_player is not None:
-            rslt += (self.bye_player.name() + " gets a bye." + linesep)
+            rslt += (self.bye_player.name() + " gets a bye." + os.linesep)
         return rslt.rstrip() # Remove last endline
