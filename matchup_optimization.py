@@ -10,6 +10,7 @@ from player import Player, bye_dummy
 def optimal_matchup(tournament, cost_map):
     match_log = tournament.match_log()
     players = tournament.players()
+
     if len(players) % 2 != 0:
         players.append(bye_dummy())
 
@@ -69,7 +70,8 @@ def optimal_matchup(tournament, cost_map):
 
     graph = _gen_graph_without_edges()
     graph = _add_matchup_cost_edges_to_graph(graph)
-    return _pairs_from_graph(graph)
+    pairs = _pairs_from_graph(graph)
+    return pairs
 
 
 def number_of_optimal_matchups(tournament, cost_map):

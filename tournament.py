@@ -15,6 +15,10 @@ class Tournament:
         self._players = []
 
 
+    def cost_map(self):
+        return self._matchup_strategy.cost_map(self)
+
+
     def match_log(self):
         return self._match_log
 
@@ -42,13 +46,13 @@ class Tournament:
 
 
     def add_result_by_names(self, player_a_name, player_b_name, wins_a, wins_b):
-        player_a = self._player_name_player(player_a_name)
-        player_b = self._player_name_player(player_b_name)
+        player_a = self.player_name_player(player_a_name)
+        player_b = self.player_name_player(player_b_name)
         self._match_log.add_result(player_a, player_b, wins_a, wins_b)
 
 
     def add_bye_by_name(self, player_name):
-        player = self._player_name_player(player_name)
+        player = self.player_name_player(player_name)
         self._match_log.add_bye(player)
 
 
@@ -80,7 +84,7 @@ class Tournament:
         raise Exception("Player (named " + player.name() + ") not among tournament players")
 
 
-    def _player_name_player(self, player_name):
+    def player_name_player(self, player_name):
         player = None
         for p in self._players:
             if p.name() == player_name:

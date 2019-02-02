@@ -11,6 +11,14 @@ class MatchResult:
             or (self._player_a == player_b and self._player_b == player_a))
 
 
+    def game_wins_of(self, player):
+        if self._player_a == player:
+            return self._player_a_wins
+        if self._player_b == player:
+            return self._player_b_wins
+        return 0
+
+
     def is_bye(self):
         return (self._player_a is None or \
                 self._player_b is None)

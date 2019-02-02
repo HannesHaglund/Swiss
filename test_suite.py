@@ -1,5 +1,7 @@
 from tournament import Tournament
 from player import Player
+from test_utilities import swedish_championship_tournament_and_wanted_pairings
+from matchups import matchups_from_tuple_list
 import unittest
 import matchup_strategies.min_cost
 
@@ -185,6 +187,20 @@ class TestMatchupPossibilities(unittest.TestCase):
         self.assertEqual(len(m.pairs), 1)
         self.assertEqual(m.bye_player, self.players[0])
         self.assertEqual(self.tournament.number_of_possible_pairings(), 1)
+
+
+    def test_mtg_swedish_championship(self):
+        self.tournament, wanted = swedish_championship_tournament_and_wanted_pairings()
+        wanted_players = [(self.tournament.player_name_player(e[0]), \
+                           self.tournament.player_name_player(e[1])) \
+                          for e in wanted]
+        wanted_matchups = matchups_from_tuple_list(wanted_players, self.tournament.cost_map())
+        m = self.tournament.pairings()
+        print(m.badness_values(64))
+        print(wanted_matchups.badness_values(64))
+        self.assertEqual(m.badness(), wanted_matchups.badness())
+
+
 
 if __name__ == "__main__":
     unittest.main()

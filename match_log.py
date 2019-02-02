@@ -54,6 +54,13 @@ class MatchLog:
         return rslt
 
 
+    def times_game_win(self, player):
+        rslt = 0
+        for entry in self._entries:
+            rslt += entry.game_wins_of(player)
+        return rslt
+
+
     def min_active_bye_count(self):
         byes = []
         players = self.active_players()

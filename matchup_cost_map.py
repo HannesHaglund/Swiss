@@ -36,25 +36,6 @@ def matchup_cost_map(players, cost_functions):
         cost_map[pa][pb] = cost
         cost_map[pb][pa] = cost
 
-    def _max_bits_used_in_function_in_round():
-        """
-        For input players, return a number of bits that can contain the output
-        of any of the cost functions multiplied by the number of pairs in a
-        round.
-        """
-        word_size = 16
-        bits_occupied = [word_size] * len(cost_functions)
-        for (pa, pb) in all_possible_pairs:
-            for i in range(len(cost_functions)):
-                max_sum_of_cost = num_pairings_in_round * \
-                                  cost_functions[i](pa, pb)
-                while (max_sum_of_cost >= 2**bits_occupied[i]):
-                    bits_occupied[i] *= 2
-        bits_occupied = [2*b for b in bits_occupied] # Paranoia
-        for b in bits_occupied:
-            assert(b % word_size == 0)
-        return max(bits_occupied)
-
     def _eval_cost_functions(pa, pb, bits_per_func):
         result = 0
         max_cost = 2**bits_per_func - 1
@@ -73,10 +54,11 @@ def matchup_cost_map(players, cost_functions):
             assert(values.count(v) == 1)
 
     cost_map = _init_cost_map()
-    max_bits = _max_bits_used_in_function_in_round()
+    max_bits = 64
     for (pa, pb) in all_possible_pairs:
         _set_cost(cost_map, pa, pb, _eval_cost_functions(pa, pb, max_bits))
     for (pa, pb) in all_possible_pairs:
         assert(cost_map[pa][pb] == cost_map[pb][pa])
     _assert_two_of_each_value(cost_map)
+
     return cost_map
