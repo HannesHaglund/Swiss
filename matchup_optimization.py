@@ -1,5 +1,4 @@
 import networkx as nx
-import random
 import math
 import itertools
 from matchups import Matchup, Matchups
@@ -7,9 +6,8 @@ from match_log import MatchLog
 from player import Player, bye_dummy
 
 
-def optimal_matchup(tournament, cost_map):
-    match_log = tournament.match_log()
-    players = tournament.players()
+def optimal_matchup(match_log, cost_map):
+    players = match_log.players()
     if len(players) % 2 != 0:
         players.append(bye_dummy())
 
@@ -27,7 +25,7 @@ def optimal_matchup(tournament, cost_map):
         for i, pa in enumerate(players):
             for j, pb in enumerate(players):
                 if (j < i and pa.is_active() and pb.is_active()):
-                    cost = cost_map[pa][pb]# + randomness
+                    cost = cost_map[pa][pb]
                     if cost in done_costs:
                         raise Exception("cost_map does not return unique values")
                     done_costs.add(cost)
@@ -59,8 +57,8 @@ def optimal_matchup(tournament, cost_map):
                 assert(matchups.bye_player is None)
                 matchups.bye_player = e[0]
             else:
-                num_0 = tournament.player_number_of_player(e[0])
-                num_1 = tournament.player_number_of_player(e[1])
+                num_0 = players.index(e[0])
+                num_1 = players.index(e[1])
                 player_a = e[0] if num_0 < num_1 else e[1]
                 player_b = e[1] if player_a == e[0] else e[0]
                 matchups.pairs.append(Matchup(player_a, player_b, cost))
@@ -72,8 +70,8 @@ def optimal_matchup(tournament, cost_map):
     return _pairs_from_graph(graph)
 
 
-def number_of_optimal_matchups(tournament, cost_map):
-    players = tournament.players()
+def number_of_optimal_matchups(match_log, cost_map):
+    players = match_log.players()
     if len(players) % 2 != 0:
         players.append(bye_dummy())
     # Brute force

@@ -1,13 +1,22 @@
 from match_result import MatchResult
+import player
 import networkx as nx
 import random
 
 class MatchLog:
     def __init__(self):
         self._entries = []
+        self._explicit_players = []
+
+
+    def add_player(self, player_name):
+        if player_name not in self._explicit_players:
+            self._explicit_players.append(player_name)
 
 
     def add_result(self, player_a, player_b, wins_a, wins_b):
+        self.add_player(player_a)
+        self.add_player(player_b)
         self._entries.append(MatchResult(player_a, player_b, wins_a, wins_b))
 
 
@@ -16,13 +25,11 @@ class MatchLog:
 
 
     def players(self):
-        players_a = [e._player_a \
-                     for e in self._entries \
-                     if e._player_a is not None];
-        players_b = [e._player_b \
-                     for e in self._entries \
-                     if e._player_b is not None];
-        return list(set(players_a + players_b))
+        # Add dummy if we're an odd number of players
+        if len(self._explicit_players) % 2 == 0:
+            return self._explicit_players
+        else:
+            return self._explicit_players + [player.bye_dummy()]
 
 
     def active_players(self):
@@ -54,6 +61,16 @@ class MatchLog:
         return rslt
 
 
+    def player_score(self, player):
+        rslt = 0
+        for entry in self._entries:
+            if entry.player_a() == player:
+                rslt += entry.player_a_wins()
+            if entry.player_b() == player:
+                rslt += entry.player_b_wins()
+        return rslt
+
+
     def min_active_bye_count(self):
         byes = []
         players = self.active_players()
@@ -63,3 +80,7 @@ class MatchLog:
             return 0
         else:
             return min(byes)
+
+
+    def ranking(self):
+        return sorted(self.players(), key=lambda e: self.player_score(e), reverse=True)
