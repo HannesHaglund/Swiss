@@ -8,8 +8,7 @@ class Matchup:
 
 
     def string(self):
-        return (self.player_a.name() + " VS. " + \
-                self.player_b.name())
+        return (self.player_a + " VS. " + self.player_b)
 
 
     def is_bye(self):
@@ -40,5 +39,5 @@ class Matchups:
         for matchup in self.pairs:
             rslt += matchup.string() + os.linesep
         if self.bye_player is not None:
-            rslt += (self.bye_player.name() + " gets a bye." + os.linesep)
+            rslt += (self.bye_player + " gets a bye." + os.linesep)
         return rslt.rstrip() # Remove last endline

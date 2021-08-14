@@ -1,5 +1,5 @@
-from player import Player
 from match_log import MatchLog
+from shared_functions import bye_dummy_player_name
 import unittest
 import matchup_strategies.min_cost
 
@@ -8,7 +8,7 @@ class TestMatchupPossibilities(unittest.TestCase):
 
     def setUp(self):
         self.match_log = MatchLog()
-        self.players = [Player("player_" + str(i)) for i in range(32)]
+        self.players = ["player_" + str(i) for i in range(32)]
 
 
     def test_6_players_have_1_possible_matchups(self):
@@ -201,7 +201,7 @@ class TestMatchupPossibilities(unittest.TestCase):
         self.match_log.add_player(self.players[0])
         self.match_log.add_player(self.players[1])
         s = matchup_strategies.min_cost.pairings(self.match_log).string()
-        vs_s = self.players[0].name() + ' VS. ' + self.players[1].name()
+        vs_s = self.players[0] + ' VS. ' + self.players[1]
         self.assertEqual(s, vs_s)
 
 if __name__ == "__main__":

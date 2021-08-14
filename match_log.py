@@ -1,5 +1,5 @@
 from match_result import MatchResult
-import player
+from shared_functions import bye_dummy_player_name
 import networkx as nx
 import random
 
@@ -7,17 +7,29 @@ class MatchLog:
     def __init__(self):
         self._entries = []
         self._explicit_players = []
+        self._player_active_map = {}
+        # Ensures we don't error if the user tries to look this up
+        self.set_player_active(bye_dummy_player_name(), True)
 
 
     def add_player(self, player_name):
         if player_name not in self._explicit_players:
             self._explicit_players.append(player_name)
+            self._player_active_map[player_name] = True
 
 
     def add_result(self, player_a, player_b, wins_a, wins_b):
         self.add_player(player_a)
         self.add_player(player_b)
         self._entries.append(MatchResult(player_a, player_b, wins_a, wins_b))
+
+
+    def set_player_active(self, player, new_state):
+        self._player_active_map[player] = new_state
+
+
+    def is_player_active(self, player):
+        return self._player_active_map[player]
 
 
     def add_bye(self, player):
@@ -29,11 +41,11 @@ class MatchLog:
         if len(self._explicit_players) % 2 == 0:
             return self._explicit_players
         else:
-            return self._explicit_players + [player.bye_dummy()]
+            return self._explicit_players + [bye_dummy_player_name()]
 
 
     def active_players(self):
-        return [p for p in self.players() if p.is_active()]
+        return [p for p in self.players() if self.is_player_active(p)]
 
 
     def times_matched(self, player_a, player_b):

@@ -1,21 +1,21 @@
 from matchup_optimization import optimal_matchup, number_of_optimal_matchups
 from matchup_cost_map import matchup_cost_map
-from player import bye_dummy
+from shared_functions import bye_dummy_player_name
 
 def _matchup_cost_functions(match_log):
 
     def _minimize_times_bye(player_a, player_b):
-        if (player_a == bye_dummy()):
+        if (player_a == bye_dummy_player_name()):
             return match_log.times_got_bye(player_b)
-        elif (player_b == bye_dummy()):
+        elif (player_b == bye_dummy_player_name()):
             return match_log.times_got_bye(player_a)
         else:
             return 0
 
     def _minimize_bye_player_wins(player_a, player_b):
-        if (player_a == bye_dummy()):
+        if (player_a == bye_dummy_player_name()):
             return match_log.times_match_win(player_b)
-        elif (player_b == bye_dummy()):
+        elif (player_b == bye_dummy_player_name()):
             return match_log.times_match_win(player_a)
         else:
             return 0

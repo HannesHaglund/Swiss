@@ -3,13 +3,12 @@ import math
 import itertools
 from matchups import Matchup, Matchups
 from match_log import MatchLog
-from player import Player, bye_dummy
-
+from shared_functions import bye_dummy_player_name
 
 def optimal_matchup(match_log, cost_map):
     players = match_log.players()
     if len(players) % 2 != 0:
-        players.append(bye_dummy())
+        players.append(bye_dummy_player_name())
 
     if len(players) == 0:
         return Matchups()
@@ -24,7 +23,7 @@ def optimal_matchup(match_log, cost_map):
         done_costs = set()
         for i, pa in enumerate(players):
             for j, pb in enumerate(players):
-                if (j < i and pa.is_active() and pb.is_active()):
+                if (j < i and match_log.is_player_active(pa) and match_log.is_player_active(pb)):
                     cost = cost_map[pa][pb]
                     if cost in done_costs:
                         raise Exception("cost_map does not return unique values")
@@ -50,10 +49,10 @@ def optimal_matchup(match_log, cost_map):
         matchups = Matchups()
         for e in pairs:
             cost = cost_map[e[0]][e[1]]
-            if e[0] == bye_dummy():
+            if e[0] == bye_dummy_player_name():
                 assert(matchups.bye_player is None)
                 matchups.bye_player = e[1]
-            elif e[1] == bye_dummy():
+            elif e[1] == bye_dummy_player_name():
                 assert(matchups.bye_player is None)
                 matchups.bye_player = e[0]
             else:
@@ -73,7 +72,7 @@ def optimal_matchup(match_log, cost_map):
 def number_of_optimal_matchups(match_log, cost_map):
     players = match_log.players()
     if len(players) % 2 != 0:
-        players.append(bye_dummy())
+        players.append(bye_dummy_player_name())
     # Brute force
     possible_pairings_in_round = round(len(players) / 2) # Always even
     perms = itertools.permutations(players)
