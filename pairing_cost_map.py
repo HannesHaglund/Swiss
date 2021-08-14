@@ -1,16 +1,16 @@
 import math
 import itertools
 
-def matchup_cost_map(players, cost_functions):
+def pairing_cost_map(players, cost_functions):
     """
-    Create a mapping between player pairs and a cost for matchup said player pair.
+    Create a mapping between player pairs and a cost for pairing said player pair.
 
     The absolute size of these costs are arbitrary, but their relative size is not.
 
     The cost is determined by cost_functions, a list of functions, each taking two
     players as argument. Each function following after the first acts as a
     tie-breaker if should previous cost functions return the same values when
-    choosing from different matchups.
+    choosing from different pairings.
 
     Return a dict such that:
     dict[pa][pb] = cost

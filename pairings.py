@@ -1,6 +1,6 @@
 import os
 
-class Matchup:
+class Pairing:
     def __init__(self, player_a, player_b, cost):
         self.player_a = player_a
         self.player_b = player_b
@@ -16,7 +16,7 @@ class Matchup:
 
 
 
-class Matchups:
+class Pairings:
     def __init__(self):
         self.pairs = []
         self.bye_player = None
@@ -36,8 +36,8 @@ class Matchups:
 
     def string(self):
         rslt = ""
-        for matchup in self.pairs:
-            rslt += matchup.string() + os.linesep
+        for pairing in self.pairs:
+            rslt += pairing.string() + os.linesep
         if self.bye_player is not None:
             rslt += (self.bye_player + " gets a bye." + os.linesep)
         return rslt.rstrip() # Remove last endline

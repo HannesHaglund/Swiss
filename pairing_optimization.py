@@ -1,17 +1,17 @@
 import networkx as nx
 import math
 import itertools
-from matchups import Matchup, Matchups
+from pairings import Pairing, Pairings
 from match_log import MatchLog
 from shared_functions import bye_dummy_player_name
 
-def optimal_matchup(match_log, cost_map):
+def optimal_pairing(match_log, cost_map):
     players = match_log.players()
     if len(players) % 2 != 0:
         players.append(bye_dummy_player_name())
 
     if len(players) == 0:
-        return Matchups()
+        return Pairings()
 
     def _gen_graph_without_edges():
         graph = nx.Graph()
@@ -19,7 +19,7 @@ def optimal_matchup(match_log, cost_map):
             graph.add_node(p)
         return graph
 
-    def _add_matchup_cost_edges_to_graph(graph):
+    def _add_pairing_cost_edges_to_graph(graph):
         done_costs = set()
         for i, pa in enumerate(players):
             for j, pb in enumerate(players):
@@ -45,31 +45,31 @@ def optimal_matchup(match_log, cost_map):
             wins_one = match_log.times_match_win(pair[1])
             if wins_zero < wins_one:
                 pairs[i] = (pair[1], pair[0])
-        # Format as matchups
-        matchups = Matchups()
+        # Format as pairings
+        pairings = Pairings()
         for e in pairs:
             cost = cost_map[e[0]][e[1]]
             if e[0] == bye_dummy_player_name():
-                assert(matchups.bye_player is None)
-                matchups.bye_player = e[1]
+                assert(pairings.bye_player is None)
+                pairings.bye_player = e[1]
             elif e[1] == bye_dummy_player_name():
-                assert(matchups.bye_player is None)
-                matchups.bye_player = e[0]
+                assert(pairings.bye_player is None)
+                pairings.bye_player = e[0]
             else:
                 num_0 = players.index(e[0])
                 num_1 = players.index(e[1])
                 player_a = e[0] if num_0 < num_1 else e[1]
                 player_b = e[1] if player_a == e[0] else e[0]
-                matchups.pairs.append(Matchup(player_a, player_b, cost))
+                pairings.pairs.append(Pairing(player_a, player_b, cost))
         # Set bye player
-        return matchups
+        return pairings
 
     graph = _gen_graph_without_edges()
-    graph = _add_matchup_cost_edges_to_graph(graph)
+    graph = _add_pairing_cost_edges_to_graph(graph)
     return _pairs_from_graph(graph)
 
 
-def number_of_optimal_matchups(match_log, cost_map):
+def number_of_optimal_pairings(match_log, cost_map):
     players = match_log.players()
     if len(players) % 2 != 0:
         players.append(bye_dummy_player_name())
