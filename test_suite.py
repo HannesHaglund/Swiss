@@ -11,6 +11,22 @@ class TestMatchupPossibilities(unittest.TestCase):
         self.players = ["player_" + str(i) for i in range(32)]
 
 
+    def test_readme_example(self):
+        match_log = MatchLog()
+        match_log.add_player("Lina")
+        match_log.add_player("Mia")
+        match_log.add_player("Ina")
+        match_log.add_player("Kajsa")
+        matchups = matchup_strategies.min_cost.pairings(match_log)
+        self.assertTrue(matchups.players_are_matched("Lina", "Mia"))
+        self.assertTrue(matchups.players_are_matched("Ina", "Kajsa"))
+        # Rest of README, we just want to check that it doesn't error
+        match_log.add_result("Lina", "Mia", 1, 0)
+        match_log.add_result("Kajsa", "Ina", 1, 0)
+        matchups = matchup_strategies.min_cost.pairings(match_log)
+
+
+
     def test_6_players_have_1_possible_matchups(self):
         for i in range(6):
             self.match_log.add_player(self.players[i])
@@ -196,6 +212,7 @@ class TestMatchupPossibilities(unittest.TestCase):
         self.assertEqual(len(m.pairs), 1)
         self.assertEqual(m.bye_player, self.players[0])
         self.assertEqual(matchup_strategies.min_cost.number_of_possible_pairings(self.match_log), 1)
+
 
     def test_smoke_pairings_string(self):
         self.match_log.add_player(self.players[0])
